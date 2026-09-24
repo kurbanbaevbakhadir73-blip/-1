@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Общага №1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --paper: #FFFFFF;
+    --paper-2: #FFFBF0;
+    --ink: #2B2520;
+    --ink-soft: #756C58;
+    --line: #EDE3C8;
+    --stamp: #E25A4C;
+    --stamp-bg: #FCE4E0;
+    --ledger: #3FAA6F;
+    --ledger-bg: #E1F5E9;
+    --brass: #E5A730;
+    --brass-2: #C98A1C;
+    --future: #B3AB93;
+    --card: #FFFFFF;
+    --shadow: rgba(43,37,32,0.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #1B1814;
+      --paper-2: #211D18;
+      --ink: #EDE7D9;
+      --ink-soft: #A79E8B;
+      --line: #453F35;
+      --stamp: #F0776A;
+      --stamp-bg: #3A2422;
+      --ledger: #5FC98C;
+      --ledger-bg: #1F2E23;
+      --brass: #F0BC52;
+      --brass-2: #E6B85C;
+      --future: #6E6656;
+      --card: #221E18;
+      --shadow: rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1814;
+    --paper-2: #211D18;
+    --ink: #EDE7D9;
+    --ink-soft: #A79E8B;
+    --line: #453F35;
+    --stamp: #D9695F;
+    --stamp-bg: #3A2422;
+    --ledger: #6FAE86;
+    --ledger-bg: #1F2E23;
+    --brass: #D9A441;
+    --brass-2: #E6B85C;
+    --future: #6E6656;
+    --card: #221E18;
+    --shadow: rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  body {
+    margin: 0;
+    height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'PT Sans', Tahoma, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .serif { font-family: 'PT Serif', Georgia, serif; }
+
+  .screen { min-height: 100%; display: flex; flex-direction: column; }
+  [hidden] { display: none !important; }
+
+  /* ---- Login ---- */
+  .login-screen {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+      linear-gradient(var(--paper), var(--paper)),
+      repeating-linear-gradient(transparent, transparent 27px, var(--line) 28px);
+    background-blend-mode: normal;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 36px 28px 30px;
+    box-shadow: 0 10px 30px var(--shadow);
+  }
+  .login-mark {
+    width: 56px; height: 56px; margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--brass); border-radius: 50%;
+    font-size: 26px;
+    color: var(--brass-2);
+  }
+  .login-card h1 { margin: 0 0 2px; font-size: 26px; letter-spacing: 0.3px; }
+  .login-card h1 span { color: var(--stamp); }
+  .login-sub { margin: 0 0 22px; color: var(--ink-soft); font-size: 14px; }
+  #passwordInput {
+    width: 100%; padding: 12px 14px; font-size: 16px;
+    border: 1px solid var(--line); border-radius: 5px;
+    background: var(--paper); color: var(--ink);
+    margin-bottom: 12px; font-family: inherit;
+  }
+  #passwordInput:focus { outline: 2px solid var(--brass); outline-offset: 1px; }
+  .error-text { color: var(--stamp); font-size: 13px; min-height: 18px; margin: 8px 0 0; }
+
+  button { font-family: inherit; cursor: pointer; }
+  .btn-primary {
+    width: 100%; padding: 12px 16px; font-size: 15px; font-weight: 700;
+    background: var(--brass); color: #fff; border: none; border-radius: 5px;
+    letter-spacing: 0.2px;
+  }
+  .btn-primary:active { background: var(--brass-2); }
+  :root[data-theme="dark"] .btn-primary, :root:not([data-theme="light"]) .btn-primary { color: #1B1814; }
+
+  /* ---- Topbar ---- */
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: calc(env(safe-area-inset-top,0px) + 16px) 18px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-2);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .topbar > div:nth-child(2) { flex: 1; }
+  .brand { font-family: 'PT Serif', serif; font-size: 19px; font-weight: 700; }
+  .brand-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 1px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--card);
+    color: var(--ink); font-size: 16px; flex-shrink: 0;
+    position: relative;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .badge {
+    position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px;
+    border-radius: 9px; background: var(--stamp); color: #fff; font-size: 10.5px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  }
+  .viewer-tag {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px;
+    border-radius: 20px; background: var(--brass); color: #fff; margin-left: 8px; vertical-align: middle;
+  }
+  :root[data-theme="dark"] .viewer-tag, :root:not([data-theme="light"]) .viewer-tag { color: #1B1814; }
+  .complaint-list-item { border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-bottom: 10px; background: var(--paper); }
+  .complaint-list-item .c-meta { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 6px; }
+  .complaint-list-item .c-text { font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+  .complaint-list-item .c-resolve { margin-top: 10px; border: none; background: var(--ledger-bg); color: var(--ledger); font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 20px; }
+  textarea.modal-textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--paper); color: var(--ink); font-size: 14.5px; font-family: inherit;
+    min-height: 100px; resize: vertical;
+  }
+
+  /* ---- Rooms list ---- */
+  .rooms-list { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .empty-state {
+    text-align: center; color: var(--ink-soft); padding: 60px 20px;
+    font-size: 14.5px; line-height: 1.6;
+  }
+  .room-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 16px; position: relative; border-left: 4px solid var(--brass);
+  }
+  .room-card-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .room-num { font-family: 'PT Serif', serif; font-size: 20px; font-weight: 700; }
+  .room-price { font-size: 13px; color: var(--ink-soft); }
+  .room-card-mid { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  .room-card-status {
+    margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+  }
+  .status-ok { background: var(--ledger-bg); color: var(--ledger); }
+  .status-bad { background: var(--stamp-bg); color: var(--stamp); }
+
+  /* ---- FAB ---- */
+  .fab {
+    position: sticky; bottom: calc(env(safe-area-inset-bottom,0px) + 16px);
+    align-self: center; margin-top: 8px;
+    padding: 13px 22px; border-radius: 24px; border: none;
+    background: var(--ink); color: var(--paper); font-weight: 700; font-size: 14.5px;
+    box-shadow: 0 6px 18px var(--shadow);
+  }
+
+  /* ---- Room detail ---- */
+  .year-switch {
+    display: flex; align-items: center; justify-content: center; gap: 18px;
+    padding: 12px; border-bottom: 1px dashed var(--line); background: var(--paper-2);
+  }
+  .year-switch button {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); font-size: 16px;
+  }
+  .year-switch span { font-family: 'PT Serif', serif; font-size: 16px; font-weight: 700; min-width: 50px; text-align: center; }
+
+  .places-list { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .place-card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .place-head {
+    display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer;
+  }
+  .place-badge {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--brass); color: var(--brass-2); font-weight: 700; font-size: 14px;
+  }
+  .place-info { flex: 1; min-width: 0; }
+  .place-name-input {
+    width: 100%; border: none; border-bottom: 1.5px dashed var(--line); background: transparent;
+    color: var(--ink); font-weight: 700; font-size: 14.5px; padding: 2px 0 4px; font-family: inherit;
+  }
+  .place-name-input::placeholder { color: var(--ink-soft); font-weight: 400; font-style: italic; }
+  .place-name-input:focus { outline: none; border-bottom-color: var(--brass); }
+  .place-sub { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .place-chevron { color: var(--ink-soft); font-size: 13px; transition: transform .15s; }
+  .place-card.open .place-chevron { transform: rotate(90deg); }
+
+  .place-body { border-top: 1px solid var(--line); padding: 8px 14px 14px; }
+  .place-name-row { display: flex; gap: 8px; margin: 10px 0 12px; }
+  .place-name-row input {
+    flex: 1; padding: 9px 11px; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--paper); color: var(--ink); font-size: 14px; font-family: inherit;
+  }
+  .place-name-row button {
+    padding: 9px 13px; border-radius: 5px; border: 1px solid var(--line);
+    background: var(--paper-2); color: var(--ink); font-size: 13px;
+  }
+  .month-row {
+    padding: 9px 2px;
+    border-bottom: 1px dotted var(--line); font-size: 13.5px;
+  }
+  .month-row:last-child { border-bottom: none; }
+  .month-line1 { display: flex; align-items: center; gap: 8px; }
+  .month-name { width: 74px; flex-shrink: 0; font-weight: 700; }
+  .month-future .month-name { color: var(--future); font-weight: 400; }
+  .month-status { flex: 1; text-align: right; font-weight: 700; font-size: 12.5px; }
+  .month-status.ok { color: var(--ledger); }
+  .month-status.bad { color: var(--stamp); }
+  .month-status.future { color: var(--future); font-weight: 400; }
+  .month-edit-btn {
+    border: none; background: var(--paper-2); color: var(--brass-2); font-size: 13px;
+    padding: 4px 9px; font-weight: 700; border-radius: 20px; flex-shrink: 0;
+  }
+  .viewer-mode .month-edit-btn, .viewer-mode .vacate-row { display: none; }
+  .month-detail { margin-top: 3px; padding-left: 82px; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+  .month-detail .amt-paid { color: var(--ledger); font-weight: 700; }
+  .month-detail .amt-owed { color: var(--stamp); font-weight: 700; }
+  .vacate-row { margin-top: 10px; text-align: right; }
+  .vacate-row button { border: none; background: none; color: var(--stamp); font-size: 12.5px; padding: 4px; }
+
+  /* ---- Modal ---- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(20,17,13,0.5);
+    display: flex; align-items: flex-end; justify-content: center; z-index: 50;
+  }
+  @media (min-width: 480px) { .modal-overlay { align-items: center; } }
+  .modal {
+    width: 100%; max-width: 420px; background: var(--card);
+    border-radius: 14px 14px 0 0; padding: 22px 20px calc(env(safe-area-inset-bottom,0px) + 22px);
+    max-height: 85vh; overflow-y: auto;
+  }
+  @media (min-width: 480px) { .modal { border-radius: 12px; } }
+  .modal h3 { margin: 0 0 16px; font-size: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--paper); color: var(--ink); font-size: 15px; font-family: inherit;
+  }
+  .stepper { display: flex; align-items: center; gap: 14px; }
+  .stepper button {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); font-size: 18px;
+  }
+  .stepper span { font-size: 17px; font-weight: 700; min-width: 24px; text-align: center; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-actions .btn-secondary {
+    flex: 1; padding: 12px; border-radius: 5px; border: 1px solid var(--line);
+    background: transparent; color: var(--ink); font-size: 14.5px; font-weight: 700;
+  }
+  .modal-actions .btn-primary { flex: 1; }
+  .modal-error { color: var(--stamp); font-size: 13px; margin: -6px 0 12px; }
+  .modal-danger { color: var(--stamp); background: none; border: none; font-size: 13px; padding: 6px 0; text-align: left; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="screen login-screen">
+  <div class="login-card">
+    <div class="login-mark">🏠</div>
+    <h1>Общага <span>№1</span></h1>
+    <input id="passwordInput" type="password" placeholder="Parol" autocomplete="current-password">
+    <p id="loginError" class="error-text"></p>
+    <button id="loginBtn" class="btn-primary">Kirish</button>
+  </div>
+</div>
+
+<div id="roomsScreen" class="screen" hidden>
+  <header class="topbar">
+    <div>
+      <div class="brand">Общага №1</div>
+      <div class="brand-sub" id="roomsSub">Xonalar</div>
+    </div>
+    <div class="topbar-actions">
+      <button id="complaintBtn" class="icon-btn" hidden>✉</button>
+      <button id="bellBtn" class="icon-btn" hidden>🔔<span id="bellBadge" class="badge" hidden>0</span></button>
+      <button id="settingsBtn" class="icon-btn" hidden>⚙</button>
+    </div>
+  </header>
+  <div id="roomsList" class="rooms-list"></div>
+  <button id="addRoomBtn" class="fab" hidden>+ Yangi xona</button>
+</div>
+
+<div id="roomScreen" class="screen" hidden>
+  <header class="topbar">
+    <button id="backBtn" class="icon-btn">←</button>
+    <div>
+      <div class="brand" id="roomTitle"></div>
+      <div class="brand-sub" id="roomSub"></div>
+    </div>
+    <div class="topbar-actions">
+      <button id="complaintBtn2" class="icon-btn" hidden>✉</button>
+      <button id="roomMenuBtn" class="icon-btn" hidden>⋮</button>
+    </div>
+  </header>
+  <div class="year-switch">
+    <button id="yearPrev">‹</button>
+    <span id="yearLabel"></span>
+    <button id="yearNext">›</button>
+  </div>
+  <div id="placesList" class="places-list"></div>
+  <button id="addPlaceBtn" class="fab" hidden>+ Joy qo'shish</button>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" hidden>
+  <div id="modalBody" class="modal"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
+  var fmt = function(n){ n = Math.round(n||0); return n.toLocaleString('ru-RU').replace(/,/g,' '); };
+  var today = new Date();
+  var CUR_YEAR = today.getFullYear();
+  var CUR_MONTH = today.getMonth();
+
+  var db = null;
+  var currentRole = null; // "admin" | "viewer"
+  var rooms = [];
+  var roomsUnsub = null;
+  var currentRoomId = null;
+  var currentRoomYear = CUR_YEAR;
+  var places = [];
+  var placesUnsub = null;
+  var openPlaceId = null;
+
+  function daysInMonth(y, m){ return new Date(y, m+1, 0).getDate(); }
+  function monthKey(y, m){ return y + "-" + String(m+1).padStart(2,"0"); }
+  function esc(s){ return (s||"").toString().replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+  function show(id){
+    ["loginScreen","roomsScreen","roomScreen"].forEach(function(s){
+      document.getElementById(s).hidden = (s !== id);
+    });
+  }
+
+  function openModal(html){
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalOverlay").hidden = false;
+  }
+  function closeModal(){
+    document.getElementById("modalOverlay").hidden = true;
+    document.getElementById("modalBody").innerHTML = "";
+  }
+  document.getElementById("modalOverlay").addEventListener("click", function(e){
+    if (e.target.id === "modalOverlay") closeModal();
+  });
+
+  // ---------- INIT / LOGIN ----------
+  // ==========================================================
+  // Yengil ma'lumotlar ombori — hech qanday tashqi xizmat kerak emas.
+  // Ma'lumotlar shu brauzer xotirasida (localStorage) saqlanadi.
+  // Diqqat: boshqa qurilma/brauzerda ochilsa, u alohida, bo'sh ro'yxat bilan boshlanadi —
+  // ma'lumotlar qurilmalar orasida avtomatik sinxronlanmaydi.
+  // ==========================================================
+  function createLocalDB(){
+    var KEY = "obshaga_store_v1";
+    var store = {};
+    try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ store = {}; }
+    var subs = [];
+
+    function persist(){
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){}
+      subs.forEach(function(s){ try { s.cb(buildSnapshot(s)); } catch(e){} });
+    }
+    function segs(p){ return p.split("/").filter(Boolean); }
+    function genId(){ return "id_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8); }
+    function docsUnder(collPath){
+      var prefix = collPath + "/";
+      var out = [];
+      Object.keys(store).forEach(function(k){
+        if (k.indexOf(prefix) === 0){
+          var rest = k.slice(prefix.length);
+          if (rest.length && rest.indexOf("/") === -1) out.push({ id: rest, path: k, data: store[k] });
+        }
+      });
+      return out;
+    }
+    function buildSnapshot(q){
+      var docs = docsUnder(q.collPath);
+      (q.filters||[]).forEach(function(f){
+        docs = docs.filter(function(d){
+          var v = d.data[f.field];
+          if (f.op === "==") return v === f.value;
+          if (f.op === "!=") return v !== f.value;
+          return true;
+        });
+      });
+      if (q.orderField){
+        docs.sort(function(a,b){
+          var av=a.data[q.orderField], bv=b.data[q.orderField];
+          if (av===undefined && bv===undefined) return 0;
+          if (av===undefined) return 1;
+          if (bv===undefined) return -1;
+          if (av<bv) return q.orderDir==="desc" ? 1 : -1;
+          if (av>bv) return q.orderDir==="desc" ? -1 : 1;
+          return 0;
+        });
+      } else {
+        docs.sort(function(a,b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+      }
+      if (q.limitN) docs = docs.slice(0, q.limitN);
+      return {
+        docs: docs.map(function(d){ return { id: d.id, exists: true, data: function(){ return d.data; } }; }),
+        size: docs.length,
+        empty: docs.length === 0
+      };
+    }
+    function docRef(path){
+      return {
+        id: segs(path).slice(-1)[0],
+        path: path,
+        get: function(){
+          return Promise.resolve({ id: segs(path).slice(-1)[0], exists: !!store[path], data: function(){ return store[path]; } });
+        },
+        set: function(data){
+          store[path] = JSON.parse(JSON.stringify(data));
+          persist();
+          return Promise.resolve();
+        },
+        update: function(data){
+          if (!store[path]) return Promise.reject({ code: "invalid_argument", message: "Hujjat topilmadi" });
+          var cur = store[path];
+          Object.keys(data).forEach(function(k){
+            var v = data[k];
+            if (v && typeof v === "object" && !Array.isArray(v) && cur[k] && typeof cur[k] === "object"){
+              cur[k] = Object.assign({}, cur[k], v);
+            } else {
+              cur[k] = v;
+            }
+          });
+          persist();
+          return Promise.resolve();
+        },
+        delete: function(){ delete store[path]; persist(); return Promise.resolve(); }
+      };
+    }
+    function collRef(path){
+      var filters = [], orderField = null, orderDir = "asc", limitN = null;
+      var q = {
+        where: function(f,op,v){ filters.push({field:f,op:op,value:v}); return q; },
+        orderBy: function(f,d){ orderField = f; orderDir = d || "asc"; return q; },
+        limit: function(n){ limitN = n; return q; },
+        doc: function(id){ return docRef(path + "/" + (id || genId())); },
+        add: function(data){
+          var id = genId();
+          store[path + "/" + id] = JSON.parse(JSON.stringify(data));
+          persist();
+          return Promise.resolve(docRef(path + "/" + id));
+        },
+        get: function(){ return Promise.resolve(buildSnapshot({collPath:path,filters:filters,orderField:orderField,orderDir:orderDir,limitN:limitN})); },
+        onSnapshot: function(next, err){
+          var sub = { collPath: path, filters: filters, orderField: orderField, orderDir: orderDir, limitN: limitN, cb: next };
+          subs.push(sub);
+          setTimeout(function(){ next(buildSnapshot(sub)); }, 0);
+          return function(){ var i = subs.indexOf(sub); if (i>=0) subs.splice(i,1); };
+        }
+      };
+      return q;
+    }
+    return { doc: function(p){ return docRef(p); }, collection: function(p){ return collRef(p); } };
+  }
+
+  async function init(){
+    if (window.Telegram && window.Telegram.WebApp){
+      try { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } catch(e){}
+    }
+    db = createLocalDB();
+    var settingsSnap = await db.doc("settings/main").get();
+    if (!settingsSnap.exists){
+      try { await db.doc("settings/main").set({ password: "1234", viewerPassword: "0000" }); } catch(e){}
+    } else if (!settingsSnap.data().viewerPassword){
+      try { await db.doc("settings/main").update({ viewerPassword: "0000" }); } catch(e){}
+    }
+    document.getElementById("loginBtn").addEventListener("click", tryLogin);
+    document.getElementById("passwordInput").addEventListener("keydown", function(e){
+      if (e.key === "Enter") tryLogin();
+    });
+  }
+
+  async function tryLogin(){
+    var input = document.getElementById("passwordInput").value.trim();
+    var errEl = document.getElementById("loginError");
+    errEl.textContent = "";
+    try {
+      var snap = await db.doc("settings/main").get();
+      var data = snap.exists ? snap.data() : {};
+      var adminPass = data.password || "1234";
+      var viewerPass = data.viewerPassword || "0000";
+      if (input === adminPass){
+        currentRole = "admin";
+        enterApp();
+      } else if (input === viewerPass){
+        currentRole = "viewer";
+        enterApp();
+      } else {
+        errEl.textContent = "Parol noto'g'ri.";
+      }
+    } catch(e){
+      errEl.textContent = "Xatolik yuz berdi, qayta urinib ko'ring.";
+    }
+  }
+
+  function applyRolePermissions(){
+    var isAdmin = currentRole === "admin";
+    document.getElementById("settingsBtn").hidden = !isAdmin;
+    document.getElementById("addRoomBtn").hidden = !isAdmin;
+    document.getElementById("addPlaceBtn").hidden = !isAdmin;
+    document.getElementById("roomMenuBtn").hidden = !isAdmin;
+    document.getElementById("bellBtn").hidden = !isAdmin;
+    document.getElementById("complaintBtn").hidden = isAdmin;
+    document.getElementById("complaintBtn2").hidden = isAdmin;
+    if (isAdmin) refreshComplaintBadge();
+  }
+
+  function enterApp(){
+    show("roomsScreen");
+    applyRolePermissions();
+    subscribeRooms();
+  }
+
+  // ---------- COMPLAINTS ----------
+  function showComplaintModal(){
+    openModal(
+      '<h3>Murojaat / Xabar yuborish</h3>' +
+      '<div class="field"><label>Ism (ixtiyoriy)</label><input id="cName" type="text" placeholder="Ismingiz"></div>' +
+      '<div class="field"><label>Xona / joy (ixtiyoriy)</label><input id="cRoom" type="text" placeholder="Masalan: 2-xona, 3-joy"></div>' +
+      '<div class="field"><label>Xabar</label><textarea id="cText" class="modal-textarea" placeholder="Muammo yoki eʼtirozingizni yozing..."></textarea></div>' +
+      '<p class="modal-error" id="mErr"></p>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Bekor qilish</button><button class="btn-primary" id="mSave">Yuborish</button></div>'
+    );
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", async function(){
+      var text = document.getElementById("cText").value.trim();
+      if (!text){ document.getElementById("mErr").textContent = "Xabar matnini kiriting."; return; }
+      var btn = document.getElementById("mSave"); btn.textContent = "Yuborilmoqda..."; btn.disabled = true;
+      try {
+        await db.collection("complaints").add({
+          text: text,
+          authorName: document.getElementById("cName").value.trim(),
+          roomHint: document.getElementById("cRoom").value.trim(),
+          createdAt: new Date().toISOString(),
+          resolved: false
+        });
+        closeModal();
+      } catch(e){
+        document.getElementById("mErr").textContent = "Yuborishda xatolik yuz berdi.";
+        btn.textContent = "Yuborish"; btn.disabled = false;
+      }
+    });
+  }
+  document.getElementById("complaintBtn").addEventListener("click", showComplaintModal);
+  document.getElementById("complaintBtn2").addEventListener("click", showComplaintModal);
+
+  async function refreshComplaintBadge(){
+    try {
+      var snap = await db.collection("complaints").where("resolved","==",false).get();
+      var badge = document.getElementById("bellBadge");
+      if (snap.size > 0){ badge.hidden = false; badge.textContent = snap.size; }
+      else { badge.hidden = true; }
+    } catch(e){}
+  }
+
+  document.getElementById("bellBtn").addEventListener("click", async function(){
+    var html = '<h3>Murojaatlar</h3><div id="cList">Yuklanmoqda...</div>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Yopish</button></div>';
+    openModal(html);
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    try {
+      var snap = await db.collection("complaints").orderBy("createdAt","desc").limit(100).get();
+      var list = document.getElementById("cList");
+      var docs = snap.docs;
+      if (!docs.length){ list.innerHTML = '<div class="empty-state">Hozircha murojaatlar yo\'q.</div>'; return; }
+      list.innerHTML = "";
+      docs.forEach(function(d){
+        var c = d.data();
+        var item = document.createElement("div");
+        item.className = "complaint-list-item";
+        var when = c.createdAt ? new Date(c.createdAt).toLocaleString('uz-UZ') : "";
+        var meta = when + (c.authorName ? " · " + esc(c.authorName) : "") + (c.roomHint ? " · " + esc(c.roomHint) : "");
+        item.innerHTML =
+          '<div class="c-meta">' + meta + (c.resolved ? " · <b style=\"color:var(--ledger)\">hal qilindi</b>" : "") + '</div>' +
+          '<div class="c-text">' + esc(c.text) + '</div>' +
+          (c.resolved ? "" : '<button class="c-resolve">Hal qilindi deb belgilash</button>');
+        if (!c.resolved){
+          item.querySelector(".c-resolve").addEventListener("click", async function(){
+            try { await db.doc("complaints/"+d.id).update({ resolved: true }); item.remove(); refreshComplaintBadge(); }
+            catch(e){}
+          });
+        }
+        list.appendChild(item);
+      });
+    } catch(e){
+      document.getElementById("cList").innerHTML = '<div class="empty-state">Yuklashda xatolik.</div>';
+    }
+  });
+
+  // ---------- ROOMS LIST ----------
+  function subscribeRooms(){
+    if (roomsUnsub) roomsUnsub();
+    roomsUnsub = db.collection("rooms").orderBy("number","asc").onSnapshot(function(snap){
+      rooms = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderRoomsList();
+    }, function(err){
+      document.getElementById("roomsList").innerHTML = '<div class="empty-state">Ma\'lumotlarni yuklashda xatolik: ' + err.code + '</div>';
+    });
+  }
+
+  function roomMonthDebt(room, place){
+    var y = CUR_YEAR, m = CUR_MONTH;
+    if (!place.name) return 0;
+    var req = (room.dailyPrice||0) * daysInMonth(y,m);
+    var paid = (place.payments && place.payments[monthKey(y,m)]) || 0;
+    return Math.max(0, req - paid);
+  }
+
+  function renderRoomsList(){
+    var el = document.getElementById("roomsList");
+    var roleTag = currentRole === "viewer" ? '<span class="viewer-tag">Kuzatuvchi</span>' : "";
+    document.getElementById("roomsSub").innerHTML = (rooms.length ? rooms.length + " ta xona" : "Xonalar") + roleTag;
+    if (!rooms.length){
+      el.innerHTML = '<div class="empty-state">Hali xonalar yo\'q.<br>Boshlash uchun quyidagi tugmani bosing.</div>';
+      return;
+    }
+    el.innerHTML = "";
+    rooms.forEach(function(room){
+      db.collection("rooms/" + room.id + "/places").get().then(function(snap){
+        var ps = snap.docs.map(function(d){ return d.data(); });
+        var filled = ps.filter(function(p){ return p.name; }).length;
+        var debt = ps.reduce(function(sum,p){ return sum + roomMonthDebt(room,p); }, 0);
+        var card = document.createElement("div");
+        card.className = "room-card";
+        card.innerHTML =
+          '<div class="room-card-top">' +
+            '<div class="room-num">' + (room.number||"?") + '-xona</div>' +
+            '<div class="room-price">' + fmt(room.dailyPrice) + " so'm/kun</div>" +
+          '</div>' +
+          '<div class="room-card-mid">' + filled + " / " + (room.placesCount||ps.length) + ' joy band</div>' +
+          '<div class="room-card-status ' + (debt>0?"status-bad":"status-ok") + '">' +
+            (debt>0 ? ("Joriy oy qarzi: " + fmt(debt) + " so'm") : "Joriy oy qarzi yo'q") +
+          '</div>';
+        card.addEventListener("click", function(){ openRoom(room.id); });
+        el.appendChild(card);
+      });
+    });
+  }
+
+  document.getElementById("addRoomBtn").addEventListener("click", showAddRoomModal);
+  document.getElementById("settingsBtn").addEventListener("click", showSettingsModal);
+
+  function showAddRoomModal(){
+    var placesCount = 4;
+    openModal(
+      '<h3>Yangi xona</h3>' +
+      '<div class="field"><label>Xona raqami</label><input id="mRoomNumber" type="text" placeholder="Masalan: 1" inputmode="numeric"></div>' +
+      '<div class="field"><label>Kunlik narxi (so\'m)</label><input id="mRoomPrice" type="number" placeholder="Masalan: 40000"></div>' +
+      '<div class="field"><label>Joylar soni</label>' +
+        '<div class="stepper"><button id="mDec">−</button><span id="mCount">4</span><button id="mInc">+</button></div>' +
+      '</div>' +
+      '<p class="modal-error" id="mErr"></p>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Bekor qilish</button><button class="btn-primary" id="mSave">Saqlash</button></div>'
+    );
+    document.getElementById("mDec").addEventListener("click", function(){ placesCount = Math.max(1, placesCount-1); document.getElementById("mCount").textContent = placesCount; });
+    document.getElementById("mInc").addEventListener("click", function(){ placesCount = Math.min(20, placesCount+1); document.getElementById("mCount").textContent = placesCount; });
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", async function(){
+      var num = document.getElementById("mRoomNumber").value.trim();
+      var price = parseFloat(document.getElementById("mRoomPrice").value);
+      var errEl = document.getElementById("mErr");
+      if (!num || isNaN(price) || price <= 0){
+        errEl.textContent = "Xona raqami va narxni to'g'ri kiriting.";
+        return;
+      }
+      var btn = document.getElementById("mSave"); btn.textContent = "Saqlanmoqda..."; btn.disabled = true;
+      try {
+        var ref = await db.collection("rooms").add({ number: num, dailyPrice: price, placesCount: placesCount, createdAt: new Date().toISOString() });
+        for (var i=1; i<=placesCount; i++){
+          await db.collection("rooms/" + ref.id + "/places").add({ placeNumber: i, name: "", payments: {} });
+        }
+        closeModal();
+        renderRoomsList();
+      } catch(e){
+        errEl.textContent = "Saqlashda xatolik yuz berdi.";
+        btn.textContent = "Saqlash"; btn.disabled = false;
+      }
+    });
+  }
+
+  async function showSettingsModal(){
+    var snap = await db.doc("settings/main").get();
+    var data = snap.exists ? snap.data() : {};
+    openModal(
+      '<h3>Sozlamalar</h3>' +
+      '<div class="field"><label>Admin parol (to\'liq huquq)</label><input id="mNewPass" type="text" value="'+esc(data.password||"1234")+'"></div>' +
+      '<div class="field"><label>Kuzatuvchi paroli (faqat ko\'rish, boshqa odamlarga bering)</label><input id="mViewerPass" type="text" value="'+esc(data.viewerPassword||"0000")+'"></div>' +
+      '<p class="modal-error" id="mErr"></p>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Bekor qilish</button><button class="btn-primary" id="mSave">Saqlash</button></div>'
+    );
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", async function(){
+      var val = document.getElementById("mNewPass").value.trim();
+      var vval = document.getElementById("mViewerPass").value.trim();
+      if (!val || !vval){ document.getElementById("mErr").textContent = "Ikkala parolni ham kiriting."; return; }
+      try {
+        await db.doc("settings/main").set({ password: val, viewerPassword: vval });
+        closeModal();
+      } catch(e){
+        document.getElementById("mErr").textContent = "Xatolik yuz berdi.";
+      }
+    });
+  }
+
+  // ---------- ROOM DETAIL ----------
+  document.getElementById("backBtn").addEventListener("click", function(){
+    if (placesUnsub) { placesUnsub(); placesUnsub = null; }
+    currentRoomId = null; openPlaceId = null;
+    show("roomsScreen");
+    renderRoomsList();
+  });
+
+  function openRoom(roomId){
+    currentRoomId = roomId;
+    currentRoomYear = CUR_YEAR;
+    openPlaceId = null;
+    show("roomScreen");
+    subscribePlaces();
+  }
+
+  function currentRoom(){
+    return rooms.find(function(r){ return r.id === currentRoomId; });
+  }
+
+  function subscribePlaces(){
+    if (placesUnsub) placesUnsub();
+    placesUnsub = db.collection("rooms/" + currentRoomId + "/places").orderBy("placeNumber","asc").onSnapshot(function(snap){
+      places = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderRoomDetail();
+    }, function(err){
+      document.getElementById("placesList").innerHTML = '<div class="empty-state">Xatolik: ' + err.code + '</div>';
+    });
+  }
+
+  document.getElementById("yearPrev").addEventListener("click", function(){ currentRoomYear--; renderRoomDetail(); });
+  document.getElementById("yearNext").addEventListener("click", function(){ currentRoomYear++; renderRoomDetail(); });
+  document.getElementById("roomMenuBtn").addEventListener("click", showRoomMenu);
+  document.getElementById("addPlaceBtn").addEventListener("click", addPlace);
+
+  function renderRoomDetail(){
+    var room = currentRoom();
+    if (!room) return;
+    document.getElementById("roomTitle").textContent = room.number + "-xona";
+    document.getElementById("roomSub").textContent = fmt(room.dailyPrice) + " so'm/kun · " + places.length + " joy";
+    document.getElementById("yearLabel").textContent = currentRoomYear;
+
+    var el = document.getElementById("placesList");
+    el.className = "places-list" + (currentRole === "viewer" ? " viewer-mode" : "");
+    el.innerHTML = "";
+    places.forEach(function(place){
+      var card = document.createElement("div");
+      card.className = "place-card" + (openPlaceId === place.id ? " open" : "");
+
+      var yearDebt = 0, hasFuture = false;
+      for (var m=0; m<12; m++){
+        var isFuture = currentRoomYear > CUR_YEAR || (currentRoomYear === CUR_YEAR && m > CUR_MONTH);
+        if (isFuture) { hasFuture = true; continue; }
+        if (!place.name) continue;
+        var req = (room.dailyPrice||0) * daysInMonth(currentRoomYear, m);
+        var paid = (place.payments && place.payments[monthKey(currentRoomYear,m)]) || 0;
+        yearDebt += Math.max(0, req - paid);
+      }
+
+      var head = document.createElement("div");
+      head.className = "place-head";
+      head.innerHTML =
+        '<div class="place-badge">' + place.placeNumber + '</div>' +
+        '<div class="place-info">' +
+          '<input class="place-name-input" id="headName_'+place.id+'" type="text" placeholder="Ism familiya yozing" value="'+esc(place.name)+'">' +
+          '<div class="place-sub">' + (place.name ? (yearDebt>0 ? (fmt(yearDebt)+" so'm qarz ("+currentRoomYear+")") : ("Qarzi yo'q ("+currentRoomYear+")")) : "Ism kiritilmagan") + '</div>' +
+        '</div>' +
+        '<div class="place-chevron">▸</div>';
+      head.addEventListener("click", function(e){
+        if (e.target.tagName === "INPUT") return;
+        openPlaceId = (openPlaceId === place.id) ? null : place.id;
+        renderRoomDetail();
+      });
+      card.appendChild(head);
+
+      var headNameInput = head.querySelector("#headName_"+place.id);
+      if (currentRole === "viewer"){
+        headNameInput.readOnly = true;
+      } else {
+        headNameInput.addEventListener("click", function(e){ e.stopPropagation(); });
+        headNameInput.addEventListener("keydown", function(e){ if (e.key === "Enter") e.target.blur(); });
+        headNameInput.addEventListener("blur", function(e){
+          var val = e.target.value.trim();
+          if (val === (place.name||"")) return;
+          db.doc("rooms/"+currentRoomId+"/places/"+place.id).update({ name: val }).catch(function(){});
+        });
+      }
+
+      if (openPlaceId === place.id){
+        var body = document.createElement("div");
+        body.className = "place-body";
+
+        for (var mi=0; mi<12; mi++){
+          var isFut = currentRoomYear > CUR_YEAR || (currentRoomYear === CUR_YEAR && mi > CUR_MONTH);
+          var dim = daysInMonth(currentRoomYear, mi);
+          var req2 = (room.dailyPrice||0) * dim;
+          var paid2 = (place.payments && place.payments[monthKey(currentRoomYear,mi)]) || 0;
+          var paidDays = (room.dailyPrice>0) ? Math.min(dim, Math.floor(paid2 / room.dailyPrice)) : 0;
+          var unpaidDays = dim - paidDays;
+          var owed = Math.max(0, req2 - paid2);
+
+          var row = document.createElement("div");
+          row.className = "month-row" + (isFut ? " month-future" : "");
+          var statusHtml, detailHtml;
+          if (isFut){
+            statusHtml = '<span class="month-status future">kelgusi</span>';
+            detailHtml = "Kunlik narx bo'yicha kerak: " + fmt(req2) + " so'm";
+          } else if (!place.name){
+            statusHtml = '<span class="month-status future">bo\'sh joy</span>';
+            detailHtml = "";
+          } else if (paid2 <= 0){
+            statusHtml = '<span class="month-status bad">to\'lanmagan</span>';
+            detailHtml = "0 / " + dim + " kun to'langan · barcha " + dim + " kun uchun <span class=\"amt-owed\">" + fmt(req2) + " so'm qarz</span>";
+          } else if (paid2 >= req2){
+            statusHtml = '<span class="month-status ok">to\'langan</span>';
+            detailHtml = dim + " / " + dim + " kun to'langan — <span class=\"amt-paid\">" + fmt(paid2) + " so'm</span>" + (paid2>req2 ? (" (ortiqcha " + fmt(paid2-req2) + " so'm)") : "");
+          } else {
+            statusHtml = '<span class="month-status bad">qisman to\'langan</span>';
+            detailHtml = "1–" + paidDays + "-kun to'landi (<span class=\"amt-paid\">" + fmt(paid2) + " so'm</span>) · " +
+              (paidDays+1) + "–" + dim + "-kun (" + unpaidDays + " kun) to'lanmagan — <span class=\"amt-owed\">" + fmt(owed) + " so'm qarz</span>";
+          }
+          row.innerHTML =
+            '<div class="month-line1">' +
+              '<span class="month-name">' + MONTHS[mi] + '</span>' +
+              statusHtml +
+              '<button class="month-edit-btn" data-m="'+mi+'">✎ to\'lov</button>' +
+            '</div>' +
+            (detailHtml ? '<div class="month-detail">' + detailHtml + '</div>' : '');
+          row.querySelector(".month-edit-btn").addEventListener("click", (function(place, room, mi){
+            return function(){ showPaymentModal(place, room, currentRoomYear, mi); };
+          })(place, room, mi));
+          body.appendChild(row);
+        }
+
+        var vacateRow = document.createElement("div");
+        vacateRow.className = "vacate-row";
+        vacateRow.innerHTML = '<button id="vacate_'+place.id+'">Joyni bo\'shatish</button>';
+        body.appendChild(vacateRow);
+
+        card.appendChild(body);
+        el.appendChild(card);
+
+        document.getElementById("vacate_"+place.id).addEventListener("click", async function(){
+          try { await db.doc("rooms/"+currentRoomId+"/places/"+place.id).set({ placeNumber: place.placeNumber, name: "", payments: {} }); }
+          catch(e){}
+        });
+      } else {
+        el.appendChild(card);
+      }
+    });
+
+    if (!places.length){
+      el.innerHTML = '<div class="empty-state">Bu xonada hali joylar yo\'q.</div>';
+    }
+  }
+
+  function showPaymentModal(place, room, year, monthIdx){
+    var key = monthKey(year, monthIdx);
+    var current = (place.payments && place.payments[key]) || 0;
+    var req = (room.dailyPrice||0) * daysInMonth(year, monthIdx);
+    openModal(
+      '<h3>' + MONTHS[monthIdx] + ' ' + year + ' — ' + (place.placeNumber) + '-joy</h3>' +
+      '<p style="color:var(--ink-soft);font-size:13px;margin-top:-8px;">Kerakli summa: ' + fmt(req) + " so'm (" + daysInMonth(year,monthIdx) + ' kun)</p>' +
+      '<div class="field"><label>To\'langan summa (so\'m)</label><input id="mAmount" type="number" value="'+current+'"></div>' +
+      '<p class="modal-error" id="mErr"></p>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Bekor qilish</button><button class="btn-primary" id="mSave">Saqlash</button></div>'
+    );
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", async function(){
+      var amount = parseFloat(document.getElementById("mAmount").value);
+      if (isNaN(amount) || amount < 0){
+        document.getElementById("mErr").textContent = "Summani to'g'ri kiriting.";
+        return;
+      }
+      var btn = document.getElementById("mSave"); btn.textContent = "Saqlanmoqda..."; btn.disabled = true;
+      try {
+        var payments = {}; payments[key] = amount;
+        await db.doc("rooms/"+currentRoomId+"/places/"+place.id).update({ payments: payments });
+        closeModal();
+      } catch(e){
+        document.getElementById("mErr").textContent = "Saqlashda xatolik.";
+        btn.textContent = "Saqlash"; btn.disabled = false;
+      }
+    });
+  }
+
+  async function addPlace(){
+    var maxNum = places.reduce(function(m,p){ return Math.max(m, p.placeNumber||0); }, 0);
+    try {
+      await db.collection("rooms/"+currentRoomId+"/places").add({ placeNumber: maxNum+1, name: "", payments: {} });
+      var room = currentRoom();
+      await db.doc("rooms/"+currentRoomId).update({ placesCount: (room.placesCount||maxNum)+1 });
+    } catch(e){}
+  }
+
+  function showRoomMenu(){
+    var room = currentRoom();
+    if (!room) return;
+    openModal(
+      '<h3>Xonani tahrirlash</h3>' +
+      '<div class="field"><label>Xona raqami</label><input id="mRoomNumber" type="text" value="'+(room.number||"").toString().replace(/"/g,"&quot;")+'"></div>' +
+      '<div class="field"><label>Kunlik narxi (so\'m)</label><input id="mRoomPrice" type="number" value="'+(room.dailyPrice||0)+'"></div>' +
+      '<p class="modal-error" id="mErr"></p>' +
+      '<div class="modal-actions"><button class="btn-secondary" id="mCancel">Bekor qilish</button><button class="btn-primary" id="mSave">Saqlash</button></div>' +
+      '<button class="modal-danger" id="mDelete">Xonani butunlay o\'chirish</button>'
+    );
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", async function(){
+      var num = document.getElementById("mRoomNumber").value.trim();
+      var price = parseFloat(document.getElementById("mRoomPrice").value);
+      if (!num || isNaN(price) || price<=0){
+        document.getElementById("mErr").textContent = "Ma'lumotlarni to'g'ri kiriting.";
+        return;
+      }
+      try {
+        await db.doc("rooms/"+currentRoomId).update({ number: num, dailyPrice: price });
+        closeModal();
+      } catch(e){ document.getElementById("mErr").textContent = "Xatolik yuz berdi."; }
+    });
+    document.getElementById("mDelete").addEventListener("click", async function(){
+      if (!confirm("Xona va undagi barcha joylar/to'lovlar o'chiriladi. Davom etilsinmi?")) return;
+      try {
+        var snap = await db.collection("rooms/"+currentRoomId+"/places").get();
+        for (var i=0; i<snap.docs.length; i++){
+          await db.doc("rooms/"+currentRoomId+"/places/"+snap.docs[i].id).delete();
+        }
+        await db.doc("rooms/"+currentRoomId).delete();
+        closeModal();
+        if (placesUnsub) { placesUnsub(); placesUnsub = null; }
+        currentRoomId = null; openPlaceId = null;
+        show("roomsScreen");
+        renderRoomsList();
+      } catch(e){ document.getElementById("mErr").textContent = "O'chirishda xatolik."; }
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
